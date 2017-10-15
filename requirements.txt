@@ -1,0 +1,9 @@
+configparser
+geoip2
+psutil
+elasticsearch
+kafka-python
+multiprocess
+sphinx
+sphinxcontrib-httpdomain
+
