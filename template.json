@@ -1,0 +1,37 @@
+{
+  "template" : "sflow-*",
+  "settings" : {
+      "number_of_shards" : 3,
+      "number_of_replicas" : 1,
+      "translog.durability": "async",
+      "refresh_interval": "5s"
+  },
+  "mappings": {
+    "sflow": {
+      "properties": {
+        "@timestamp": {
+          "type": "date",
+          "format": "strict_date_optional_time||epoch_millis"
+        },
+        "sflow_NEWsrcIP": {
+          "type": "ip"
+        },
+        "sflow_NEWdstIP": {
+          "type": "ip"
+        },
+        "sflow_srcIP": {
+          "type": "ip"
+        },
+        "sflow_dstIP": {
+          "type": "ip"
+        },
+        "sflow_src_location": {
+          "type": "geo_point"
+        },
+        "sflow_dst_location": {
+          "type": "geo_point"
+        }
+      }
+    }
+  }
+}
