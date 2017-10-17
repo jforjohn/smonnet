@@ -244,8 +244,8 @@ class MessageHandler():
       self.push.setDaemon(True)
       self.push.start()
 
-    self.geoip = geoip2.database.Reader('sproc/GeoLite2-City.mmdb')
-    self.ASip = geoip2.database.Reader('sproc/GeoLite2-ASN.mmdb')
+    #self.geoip = geoip2.database.Reader('sproc/GeoLite2-City.mmdb')
+    #self.ASip = geoip2.database.Reader('sproc/GeoLite2-ASN.mmdb')
 
   def Accept(self, body):
     """
@@ -361,7 +361,7 @@ class MessageHandler():
       'sflow_SampleRate':sflow_SampleRate,
       }
       if str(sflowSample.get(self.filter_params[0])) == self.filter_params[1]:
-        [sflow_NEWsrcIP, sflow_NEWdstIP] = map(self.mapIP, [sflow_srcIP,sflow_dstIP])
+        [sflow_NEWsrcIP, sflow_NEWdstIP] = map(self.tryMapIP, [sflow_srcIP,sflow_dstIP])
         [src_details, dst_details] = map(self.tryGeoIP, [sflow_srcIP,sflow_dstIP])
         [src_as, dst_as] = map(self.tryASip, [sflow_srcIP,sflow_dstIP])
         if src_details:
@@ -406,7 +406,7 @@ class MessageHandler():
     """
 
     try:
-      details = self.ASip.asn(param)
+      details = asIP.asn(param)
       return details
     except geoip2.errors.AddressNotFoundError:
       return None
@@ -420,12 +420,12 @@ class MessageHandler():
     """
 
     try:
-      details = self.geoip.city(param)
+      details = geoIP.city(param)
       return details
     except geoip2.errors.AddressNotFoundError:
       return None
 
-  def mapIP(self,param):
+  def tryMapIP(self,param):
     """
     This is a helper method which is used to lookup a json file (with IP mappings from public to private) for a specific IP.
 
@@ -433,7 +433,7 @@ class MessageHandler():
     :type param: str
     """
     try:
-      return test[param]
+      return mapIP[param]
     except:
       return param
 
@@ -581,7 +581,13 @@ if __name__ == '__main__':
 
   global loggerConsumer
   global loggerIndex
-  global test
+  global mapIP
+  global geoIP
+  global asIP
+
+  geoip = geoip2.database.Reader('sproc/GeoLite2-City.mmdb')
+  asip = geoip2.database.Reader('sproc/GeoLite2-ASN.mmdb')
+
   kafkaConnections = {}
 
   config = ConfigParser.ConfigParser()
@@ -594,9 +600,9 @@ if __name__ == '__main__':
 
   # create logger
   with open("sproc/jsonIPmap.json", 'r') as fd:
-    #test = json.load(fd)
-    test = cjson.decode(fd.read())
-    #test = yaml.load(fd, Loader=Loader)
+    #mapIP = json.load(fd)
+    mapIP = cjson.decode(fd.read())
+    #mapIP = yaml.load(fd, Loader=Loader)
 
   loggerConsumer = logging.getLogger('kafka consumer')
   loggerConsumer.setLevel(logging.DEBUG)
